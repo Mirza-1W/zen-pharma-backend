@@ -73,12 +73,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Shallow checkout — fast; scans current tree at this commit (PR path also runs in _node-pr-check.yml)
-      - name: Gitleaks (secret scan)
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # ── Derive short-SHA image tag ───────────────────────────────────────────
       - name: Set image tag
         id: meta
