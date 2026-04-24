@@ -20,7 +20,7 @@ permissions:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: supplier-service
-  GITOPS_REPO: ${{ vars.GITOPS_REPO }}
+  Mirza-1W: ${{ vars.Mirza-1W }}
 
 jobs:
 
@@ -46,7 +46,7 @@ jobs:
       - name: Checkout GitOps repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.GITOPS_REPO }}
+          repository: ${{ env.Mirza-1W }}
           token: ${{ secrets.GITOPS_TOKEN }}
           path: _gitops
 
@@ -74,7 +74,7 @@ jobs:
       - name: Checkout GitOps repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.GITOPS_REPO }}
+          repository: ${{ env.Mirza-1W }}
           token: ${{ secrets.GITOPS_TOKEN }}
           path: _gitops
 
@@ -87,7 +87,7 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
           REPOSITORY: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
-          GITOPS_REPO_NAME: ${{ env.GITOPS_REPO }}
+          Mirza-1W_NAME: ${{ env.Mirza-1W }}
         run: |
           VALUES="_gitops/envs/qa/values-supplier-service.yaml"
           BRANCH="promote/qa/supplier-service/${IMAGE_TAG}"
@@ -128,13 +128,13 @@ jobs:
             "ArgoCD (pharma-qa) auto-syncs on merge." > /tmp/pr-body.md
 
           gh pr create \
-            --repo "$GITOPS_REPO_NAME" \
+            --repo "$Mirza-1W_NAME" \
             --title "promote(qa): supplier-service → ${IMAGE_TAG}" \
             --body-file /tmp/pr-body.md \
             --base main \
             --head "$BRANCH"
 
-          echo "::notice title=QA PR opened::Review and merge in ${GITOPS_REPO_NAME} to deploy to QA."
+          echo "::notice title=QA PR opened::Review and merge in ${Mirza-1W_NAME} to deploy to QA."
 
   # ── 4. DAST — ZAP baseline scan against DEV ─────────────────────────────────
   # Disabled. Enable by removing `if: false` once DEV_SUPPLIER_SERVICE_URL is set in

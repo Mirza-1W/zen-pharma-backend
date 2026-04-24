@@ -12,33 +12,33 @@ This guide is for teams who **fork** (or copy) `zen-pharma-backend` and want Git
 
 **Placeholders to replace**
 
-- `YOUR_ORG` — GitHub org or user owning the fork  
-- `YOUR_AWS_ACCOUNT_ID` — 12-digit AWS account ID  
+- `Mirza-1W` — GitHub org or user owning the fork  
+- `384148005608` — 12-digit AWS account ID  
 - `YOUR_REGION` — e.g. `us-east-1` (workflows default to `us-east-1`)
 
 ---
 
 ## Phase 0 — Decisions and forks
 
-1. Fork **`zen-pharma-backend`** to `YOUR_ORG/zen-pharma-backend`.
+1. Fork **`zen-pharma-backend`** to `Mirza-1W/zen-pharma-backend`.
 2. Create a GitOps repo you control:
-   - Fork upstream **`zen-gitops`** if available, **or** create `YOUR_ORG/zen-gitops` and copy the expected layout from [`CI-ARCHITECTURE.md`](./CI-ARCHITECTURE.md) (see Phase 5).
+   - Fork upstream **`zen-gitops`** if available, **or** create `Mirza-1W/zen-gitops` and copy the expected layout from [`CI-ARCHITECTURE.md`](./CI-ARCHITECTURE.md) (see Phase 5).
 3. Clone **`zen-infra`** locally and read its README: note variables for cluster name, ECR, GitHub OIDC, ArgoCD, and any IRSA roles.
 
 ---
 
 ## Phase 1 — Align workflow configuration with your GitHub slugs
 
-Upstream workflows set `GITOPS_REPO` to **`chandika-s/zen-gitops`**. After a fork, update **every** `ci-*.yml` and `promote-prod.yml` under `.github/workflows/` so that:
+Upstream workflows set `Mirza-1W` to **`chandika-s/zen-gitops`**. After a fork, update **every** `ci-*.yml` and `promote-prod.yml` under `.github/workflows/` so that:
 
 ```yaml
 env:
-  GITOPS_REPO: YOUR_ORG/zen-gitops
+  Mirza-1W: Mirza-1W/zen-gitops
 ```
 
 Also update any hard-coded notices in shell steps that still reference `chandika-s/zen-gitops` (search the workflows directory).
 
-**Optional:** define a repository **variable** `GITOPS_REPO` in **Settings → Secrets and variables → Actions → Variables** and reference it from workflows to avoid scattering org names (requires small workflow edits).
+**Optional:** define a repository **variable** `Mirza-1W` in **Settings → Secrets and variables → Actions → Variables** and reference it from workflows to avoid scattering org names (requires small workflow edits).
 
 ### IAM OIDC trust (AWS)
 
@@ -48,7 +48,7 @@ The trust policy example in [`CI-ARCHITECTURE.md`](./CI-ARCHITECTURE.md) restric
 
 Change this to:
 
-`repo:YOUR_ORG/zen-pharma-backend:*`
+`repo:Mirza-1W/zen-pharma-backend:*`
 
 If you use a different IAM role name than `pharma-github-actions-role`, update **both** zen-infra (or your IaC) and the reusable workflows [`_java-build.yml`](./.github/workflows/_java-build.yml) / [`_node-build.yml`](./.github/workflows/_node-build.yml) (`role-to-assume`).
 
@@ -58,7 +58,7 @@ If you use a different IAM role name than `pharma-github-actions-role`, update *
 
 Use this sequence when provisioning the GitHub Actions → AWS trust by hand (same shape as [`CI-ARCHITECTURE.md`](./CI-ARCHITECTURE.md)). **Role name:** `pharma-github-actions-role`.
 
-**Forks:** Replace `020930354342` with your account ID everywhere below, and change `token.actions.githubusercontent.com:sub` to `repo:YOUR_ORG/zen-pharma-backend:*` (and update the `Federated` ARN so the account ID in `arn:aws:iam::<ACCOUNT_ID>:oidc-provider/...` matches).
+**Forks:** Replace `020930354342` with your account ID everywhere below, and change `token.actions.githubusercontent.com:sub` to `repo:Mirza-1W/zen-pharma-backend:*` (and update the `Federated` ARN so the account ID in `arn:aws:iam::<ACCOUNT_ID>:oidc-provider/...` matches).
 
 ### Step 1 — Create the GitHub OIDC identity provider (once per account)
 
@@ -201,7 +201,7 @@ Complete these using **zen-infra** where possible; use the AWS CLI only for step
 ## Phase 3 — ArgoCD on EKS
 
 1. **Install ArgoCD** — Via zen-infra Helm/module or the official Helm chart; secure the server (ingress, SSO, TLS) per your organization.
-2. **Register the GitOps repo** — Add **read** credentials (SSH deploy key or HTTPS token) so ArgoCD can pull `YOUR_ORG/zen-gitops`. CI uses a separate **write** token (`GITOPS_TOKEN`).
+2. **Register the GitOps repo** — Add **read** credentials (SSH deploy key or HTTPS token) so ArgoCD can pull `Mirza-1W/zen-gitops`. CI uses a separate **write** token (`GITOPS_TOKEN`).
 3. **Bootstrap Applications** — Apply manifests under `argocd/apps/` in your gitops repo. Typical pattern for this project:
 
    - **DEV:** one ArgoCD Application per service, **auto-sync**
@@ -221,7 +221,7 @@ Complete these using **zen-infra** where possible; use the AWS CLI only for step
 | Secret | Required | Purpose |
 |--------|----------|---------|
 | `AWS_ACCOUNT_ID` | Yes | Used in `role-to-assume` ARN and ECR URL construction |
-| `GITOPS_TOKEN` | Yes | PAT or GitHub App token with **`contents: write`** (and ability to open PRs) on **`YOUR_ORG/zen-gitops`** |
+| `GITOPS_TOKEN` | Yes | PAT or GitHub App token with **`contents: write`** (and ability to open PRs) on **`Mirza-1W/zen-gitops`** |
 
 The workflows check out zen-gitops, commit, push, and use `gh pr create`. Ensure the token can push branches and open pull requests in the gitops repository.
 
@@ -249,7 +249,7 @@ Ensure your integration branch is named **`develop`** or update `branches:` in e
 
 ---
 
-## Phase 5 — GitOps repo layout (`YOUR_ORG/zen-gitops`)
+## Phase 5 — GitOps repo layout (`Mirza-1W/zen-gitops`)
 
 Mirror the structure described in [`CI-ARCHITECTURE.md`](./CI-ARCHITECTURE.md):
 
@@ -269,7 +269,7 @@ zen-gitops/
 
 ```yaml
 image:
-  repository: YOUR_AWS_ACCOUNT_ID.dkr.ecr.YOUR_REGION.amazonaws.com/<service>
+  repository: 384148005608.dkr.ecr.YOUR_REGION.amazonaws.com/<service>
   tag: <patched-by-ci>
   pullPolicy: IfNotPresent
 ```
@@ -280,9 +280,9 @@ image:
 
 ## Phase 6 — Verification checklist
 
-1. **AWS:** OIDC provider exists; IAM role trust matches `YOUR_ORG/zen-pharma-backend`; ECR repos exist; role can assume and push (optional smoke test).
+1. **AWS:** OIDC provider exists; IAM role trust matches `Mirza-1W/zen-pharma-backend`; ECR repos exist; role can assume and push (optional smoke test).
 2. **GitHub:** Secrets and environments configured; `GITOPS_TOKEN` can clone, push, and open PRs on the gitops repo.
-3. **Workflows:** All `GITOPS_REPO` values point to `YOUR_ORG/zen-gitops`.
+3. **Workflows:** All `Mirza-1W` values point to `Mirza-1W/zen-gitops`.
 4. **ArgoCD:** Applications sync from your gitops repo; DEV reaches Healthy after CI updates `envs/dev/values-<service>.yaml`.
 5. **End-to-end:** Push a change to **`develop`** under one service path (e.g. `api-gateway/`) → build → ECR tag `sha-xxxxxxx` → dev values updated → ArgoCD rolls out.
 

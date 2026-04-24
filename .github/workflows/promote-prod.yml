@@ -1,7 +1,7 @@
 name: Promote to PROD
 
 # Triggered manually — picks up the image currently running in QA and opens
-# a PR in the GitOps repo (vars.GITOPS_REPO) to promote it to PROD.
+# a PR in the GitOps repo (vars.Mirza-1W) to promote it to PROD.
 # PROD ArgoCD app (pharma-prod) requires manual sync after merge.
 
 on:
@@ -25,7 +25,7 @@ permissions:
   contents: read
 
 env:
-  GITOPS_REPO: ${{ vars.GITOPS_REPO }}
+  Mirza-1W: ${{ vars.Mirza-1W }}
 
 jobs:
 
@@ -40,7 +40,7 @@ jobs:
       - name: Checkout GitOps repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.GITOPS_REPO }}
+          repository: ${{ env.Mirza-1W }}
           token: ${{ secrets.GITOPS_TOKEN }}
           path: _gitops
 
@@ -75,12 +75,12 @@ jobs:
       - name: Validate PROD values file exists
         env:
           SVC: ${{ inputs.service }}
-          GITOPS_REPO_NAME: ${{ env.GITOPS_REPO }}
+          Mirza-1W_NAME: ${{ env.Mirza-1W }}
         run: |
           PROD_VALUES="_gitops/envs/prod/values-${SVC}.yaml"
           if [[ ! -f "$PROD_VALUES" ]]; then
             echo "::error::PROD values file not found: ${PROD_VALUES}"
-            echo "::error::Create envs/prod/values-${SVC}.yaml in ${GITOPS_REPO_NAME} to enable PROD promotion."
+            echo "::error::Create envs/prod/values-${SVC}.yaml in ${Mirza-1W_NAME} to enable PROD promotion."
             exit 1
           fi
           echo "PROD_VALUES=envs/prod/values-${SVC}.yaml" >> "$GITHUB_ENV"
@@ -93,7 +93,7 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
           REPOSITORY: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
-          GITOPS_REPO_NAME: ${{ env.GITOPS_REPO }}
+          Mirza-1W_NAME: ${{ env.Mirza-1W }}
         run: |
           BRANCH="promote/prod/${SVC}/${IMAGE_TAG}"
 
@@ -131,10 +131,10 @@ jobs:
             "Merging this PR updates ${PROD_VALUES}." > /tmp/pr-body.md
 
           gh pr create \
-            --repo "$GITOPS_REPO_NAME" \
+            --repo "$Mirza-1W_NAME" \
             --title "promote(prod): ${SVC} → ${IMAGE_TAG}" \
             --body-file /tmp/pr-body.md \
             --base main \
             --head "$BRANCH"
 
-          echo "::notice title=PROD PR opened::Review, get approvals, and merge in ${GITOPS_REPO_NAME}. Then manually sync ArgoCD pharma-prod/${SVC}."
+          echo "::notice title=PROD PR opened::Review, get approvals, and merge in ${Mirza-1W_NAME}. Then manually sync ArgoCD pharma-prod/${SVC}."
